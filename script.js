@@ -10,8 +10,8 @@
   // 4. Enable SMS in Klaviyo (Account → Settings → SMS) and register your
   //    A2P 10DLC campaign. Klaviyo walks you through this.
   // -----------------------------------------------------------------------
-  const KLAVIYO_COMPANY_ID = ""; // e.g. "AbCdEf"
-  const KLAVIYO_LIST_ID = "";    // e.g. "X1y2Z3"
+  const KLAVIYO_COMPANY_ID = "VV8V8d";
+  const KLAVIYO_LIST_ID = "Y7L6fS";
   const KLAVIYO_API_REVISION = "2024-10-15";
 
   const yearEl = document.getElementById("year");
