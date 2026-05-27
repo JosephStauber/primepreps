@@ -1,4 +1,19 @@
 (function () {
+  // -----------------------------------------------------------------------
+  // Klaviyo configuration
+  //
+  // 1. Create a free Klaviyo account at https://www.klaviyo.com/
+  // 2. Settings → API Keys → copy your "Public API Key" (looks like "AbCdEf")
+  //    and paste it into KLAVIYO_COMPANY_ID below. This is meant to be public.
+  // 3. Lists & Segments → Create List → name it "PrimePreps Waitlist".
+  //    Open the list, click Settings, copy the List ID into KLAVIYO_LIST_ID.
+  // 4. Enable SMS in Klaviyo (Account → Settings → SMS) and register your
+  //    A2P 10DLC campaign. Klaviyo walks you through this.
+  // -----------------------------------------------------------------------
+  const KLAVIYO_COMPANY_ID = ""; // e.g. "AbCdEf"
+  const KLAVIYO_LIST_ID = "";    // e.g. "X1y2Z3"
+  const KLAVIYO_API_REVISION = "2024-10-15";
+
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
@@ -23,6 +38,69 @@
   phoneInput.addEventListener("input", (e) => {
     e.target.value = formatPhone(e.target.value);
   });
+
+  const submitToKlaviyo = async ({ first_name, phoneE164, zip }) => {
+    if (!KLAVIYO_COMPANY_ID || !KLAVIYO_LIST_ID) {
+      throw new Error("Klaviyo is not configured yet.");
+    }
+
+    const url = `https://a.klaviyo.com/client/subscriptions/?company_id=${encodeURIComponent(
+      KLAVIYO_COMPANY_ID
+    )}`;
+
+    const body = {
+      data: {
+        type: "subscription",
+        attributes: {
+          custom_source: "PrimePreps Landing Page",
+          profile: {
+            data: {
+              type: "profile",
+              attributes: {
+                phone_number: phoneE164,
+                properties: {
+                  first_name,
+                  zip,
+                  source: "primepreps_landing",
+                },
+                subscriptions: {
+                  sms: {
+                    marketing: { consent: "SUBSCRIBED" },
+                    transactional: { consent: "SUBSCRIBED" },
+                  },
+                },
+              },
+            },
+          },
+        },
+        relationships: {
+          list: {
+            data: { type: "list", id: KLAVIYO_LIST_ID },
+          },
+        },
+      },
+    };
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        revision: KLAVIYO_API_REVISION,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok && res.status !== 202) {
+      let detail = "";
+      try {
+        const json = await res.json();
+        detail = json?.errors?.[0]?.detail || "";
+      } catch (_) {}
+      const err = new Error(detail || `Klaviyo error ${res.status}`);
+      err.status = res.status;
+      throw err;
+    }
+  };
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -49,27 +127,33 @@
     }
 
     const submitBtn = form.querySelector('button[type="submit"]');
+    const originalLabel = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = "Saving...";
 
     try {
-      // TODO: Replace this block with a POST to your SMS provider.
-      // Recommended: Klaviyo (free tier), SlickText, or a Twilio-backed function.
-      // Example:
-      // await fetch("/api/waitlist", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ ...data, phone: phoneDigits }),
-      // });
-      await new Promise((r) => setTimeout(r, 600));
+      await submitToKlaviyo({
+        first_name: data.first_name.trim(),
+        phoneE164: `+1${phoneDigits}`,
+        zip: data.zip,
+      });
 
       form.reset();
-      setStatus("You're on the list. We'll text you the second we launch in your area.", "success");
+      setStatus(
+        "You're on the list. We'll text you the second we launch in your area.",
+        "success"
+      );
     } catch (err) {
-      setStatus("Something went wrong. Please try again in a moment.", "error");
+      const friendly =
+        err.status === 429
+          ? "Whoa, slow down — please try again in a minute."
+          : err.message && err.message.toLowerCase().includes("not configured")
+          ? "SMS signup isn't live yet. Check back soon!"
+          : "Something went wrong. Please try again in a moment.";
+      setStatus(friendly, "error");
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = "Save my spot";
+      submitBtn.textContent = originalLabel;
     }
   });
 })();
