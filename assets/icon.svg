@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" role="img" aria-label="PrimePreps icon">
+  <defs>
+    <linearGradient id="bowlGradIcon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3FB35A"/>
+      <stop offset="100%" stop-color="#1F7A3A"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="280" height="280" rx="56" fill="#E5F5E8"/>
+  <path d="M100 92 q-14 -22 4 -44" fill="none" stroke="#1F7A3A" stroke-width="10" stroke-linecap="round"/>
+  <path d="M132 92 q-14 -22 4 -44" fill="none" stroke="#1F7A3A" stroke-width="10" stroke-linecap="round"/>
+  <path d="M172 104 q34 -54 70 -50 q-6 38 -50 70 z" fill="#F07A1E"/>
+  <path d="M62 144 H222 a80 80 0 0 1 -160 0 Z" fill="url(#bowlGradIcon)"/>
+</svg>
