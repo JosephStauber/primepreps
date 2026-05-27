@@ -1,13 +1,7 @@
 (function () {
-  // -----------------------------------------------------------------------
-  // Waitlist endpoint
-  //
-  // Submissions are POSTed to a Google Apps Script web app that appends
-  // them as rows in your Google Sheet. Setup steps are in README-ish
-  // form at the bottom of this file. Paste your deployed web-app URL
-  // (the one that ends in "/exec") below.
-  // -----------------------------------------------------------------------
-  const WAITLIST_ENDPOINT = "";
+  // Formspree endpoint for the PrimePreps waitlist.
+  // Manage submissions at https://formspree.io/forms/xykvlpqv/submissions
+  const WAITLIST_ENDPOINT = "https://formspree.io/f/xykvlpqv";
 
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -34,26 +28,26 @@
     e.target.value = formatPhone(e.target.value);
   });
 
-  const submitWaitlist = async ({ first_name, phoneE164, zip }) => {
-    if (!WAITLIST_ENDPOINT) {
-      throw new Error("Waitlist endpoint is not configured yet.");
-    }
-
-    const params = new URLSearchParams();
-    params.append("first_name", first_name);
-    params.append("phone", phoneE164);
-    params.append("zip", zip);
-    params.append("sms_consent", "1");
-    params.append("source", "primepreps_landing");
-    params.append("user_agent", navigator.userAgent);
-
+  const submitWaitlist = async (payload) => {
     const res = await fetch(WAITLIST_ENDPOINT, {
       method: "POST",
-      body: params,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(payload),
     });
 
-    if (!res.ok) {
-      const err = new Error(`Server returned ${res.status}`);
+    let json = null;
+    try {
+      json = await res.json();
+    } catch (_) {}
+
+    if (!res.ok || (json && json.ok === false)) {
+      const detail =
+        (json && json.errors && json.errors[0] && json.errors[0].message) ||
+        `Server returned ${res.status}`;
+      const err = new Error(detail);
       err.status = res.status;
       throw err;
     }
@@ -91,8 +85,14 @@
     try {
       await submitWaitlist({
         first_name: data.first_name.trim(),
-        phoneE164: `+1${phoneDigits}`,
+        phone: `+1${phoneDigits}`,
         zip: data.zip,
+        sms_consent: "YES",
+        sms_consent_text:
+          "Agreed to receive recurring SMS updates from PrimePreps. Msg & data rates may apply. Reply STOP to cancel.",
+        source: "primepreps_landing",
+        submitted_at: new Date().toISOString(),
+        _subject: `New PrimePreps waitlist signup: ${data.first_name.trim()}`,
       });
 
       form.reset();
@@ -102,56 +102,15 @@
       );
     } catch (err) {
       console.error("Waitlist submission failed:", err);
-      const friendly =
-        err.message && err.message.toLowerCase().includes("not configured")
-          ? "Signups aren't live yet. Check back soon!"
-          : "Something went wrong. Please try again in a moment.";
-      setStatus(friendly, "error");
+      setStatus(
+        err.message
+          ? `Couldn't save your spot: ${err.message}`
+          : "Something went wrong. Please try again in a moment.",
+        "error"
+      );
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
     }
   });
 })();
-
-/* ----------------------------------------------------------------------
-   Google Sheets setup (one-time)
-
-   1. Open https://sheets.new to create a new blank Google Sheet.
-      Name it "PrimePreps Waitlist".
-
-   2. In the menu bar: Extensions -> Apps Script.
-      (On mobile you'll need "Request Desktop Site" in Safari/Chrome,
-       OR just do this step from a laptop.)
-
-   3. Delete the default code in the editor and paste this:
-
-      function doPost(e) {
-        const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-        if (sheet.getLastRow() === 0) {
-          sheet.appendRow(['Timestamp','First Name','Phone','ZIP','SMS Consent','Source','User Agent']);
-        }
-        const p = e.parameter || {};
-        sheet.appendRow([
-          new Date(),
-          p.first_name || '',
-          p.phone || '',
-          p.zip || '',
-          p.sms_consent === '1' ? 'YES' : 'NO',
-          p.source || '',
-          p.user_agent || ''
-        ]);
-        return ContentService.createTextOutput(JSON.stringify({ ok: true }))
-          .setMimeType(ContentService.MimeType.JSON);
-      }
-
-   4. Click the blue "Deploy" button (top right) -> New deployment.
-      - Click the gear icon -> select "Web app".
-      - Description: "PrimePreps waitlist webhook"
-      - Execute as: Me
-      - Who has access: Anyone
-      - Click Deploy. Approve the permissions when prompted.
-
-   5. Copy the "Web app URL" it shows you (ends in "/exec") and send
-      it back so it can be pasted into WAITLIST_ENDPOINT above.
----------------------------------------------------------------------- */
