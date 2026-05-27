@@ -59,9 +59,15 @@
 
     const data = Object.fromEntries(new FormData(form).entries());
     const phoneDigits = (data.phone || "").replace(/\D/g, "");
+    const name = (data.name || "").trim();
+    const email = (data.email || "").trim();
 
-    if (!data.first_name || !data.first_name.trim()) {
-      setStatus("Please enter your first name.", "error");
+    if (!name) {
+      setStatus("Please enter your full name.", "error");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus("Please enter a valid email address.", "error");
       return;
     }
     if (phoneDigits.length !== 10) {
@@ -84,7 +90,8 @@
 
     try {
       await submitWaitlist({
-        first_name: data.first_name.trim(),
+        name,
+        email,
         phone: `+1${phoneDigits}`,
         zip: data.zip,
         sms_consent: "YES",
@@ -92,7 +99,7 @@
           "Agreed to receive recurring SMS updates from PrimePreps. Msg & data rates may apply. Reply STOP to cancel.",
         source: "primepreps_landing",
         submitted_at: new Date().toISOString(),
-        _subject: `New PrimePreps waitlist signup: ${data.first_name.trim()}`,
+        _subject: `New PrimePreps waitlist signup: ${name}`,
       });
 
       form.reset();
