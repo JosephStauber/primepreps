@@ -144,11 +144,14 @@
         "success"
       );
     } catch (err) {
+      console.error("Waitlist submission failed:", err);
       const friendly =
         err.status === 429
           ? "Whoa, slow down — please try again in a minute."
           : err.message && err.message.toLowerCase().includes("not configured")
           ? "SMS signup isn't live yet. Check back soon!"
+          : err.message
+          ? `Klaviyo says: ${err.message}`
           : "Something went wrong. Please try again in a moment.";
       setStatus(friendly, "error");
     } finally {
