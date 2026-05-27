@@ -62,12 +62,10 @@
                   first_name,
                   zip,
                   source: "primepreps_landing",
-                },
-                subscriptions: {
-                  sms: {
-                    marketing: { consent: "SUBSCRIBED" },
-                    transactional: { consent: "SUBSCRIBED" },
-                  },
+                  sms_consent: true,
+                  sms_consent_timestamp: new Date().toISOString(),
+                  sms_consent_text:
+                    "I agree to receive recurring SMS updates from PrimePreps at the number provided. Msg & data rates may apply. Reply STOP to cancel.",
                 },
               },
             },
