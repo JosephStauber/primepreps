@@ -120,11 +120,21 @@
           </p>
 
           <form id="waitlist-form" class="form" novalidate>
+            <label class="field">
+              <span>Full name</span>
+              <input type="text" name="name" autocomplete="name" required />
+            </label>
+            <label class="field">
+              <span>Email</span>
+              <input
+                type="email"
+                name="email"
+                autocomplete="email"
+                placeholder="you@example.com"
+                required
+              />
+            </label>
             <div class="form-row">
-              <label class="field">
-                <span>First name</span>
-                <input type="text" name="first_name" autocomplete="given-name" required />
-              </label>
               <label class="field">
                 <span>Mobile number</span>
                 <input
@@ -136,19 +146,19 @@
                   required
                 />
               </label>
+              <label class="field">
+                <span>ZIP code</span>
+                <input
+                  type="text"
+                  name="zip"
+                  inputmode="numeric"
+                  autocomplete="postal-code"
+                  maxlength="5"
+                  pattern="[0-9]{5}"
+                  required
+                />
+              </label>
             </div>
-            <label class="field">
-              <span>ZIP code</span>
-              <input
-                type="text"
-                name="zip"
-                inputmode="numeric"
-                autocomplete="postal-code"
-                maxlength="5"
-                pattern="[0-9]{5}"
-                required
-              />
-            </label>
             <label class="consent">
               <input type="checkbox" name="consent" required />
               <span>
@@ -175,6 +185,6 @@
       </div>
     </footer>
 
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=7"></script>
   </body>
 </html>
