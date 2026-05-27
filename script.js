@@ -79,7 +79,7 @@
       return;
     }
     if (!data.consent) {
-      setStatus("Please agree to receive SMS updates.", "error");
+      setStatus("Please agree to receive email and SMS updates.", "error");
       return;
     }
 
@@ -94,9 +94,9 @@
         email,
         phone: `+1${phoneDigits}`,
         zip: data.zip,
-        sms_consent: "YES",
-        sms_consent_text:
-          "Agreed to receive recurring SMS updates from PrimePreps. Msg & data rates may apply. Reply STOP to cancel.",
+        marketing_consent: "YES",
+        marketing_consent_text:
+          "By checking this box, I agree to receive recurring marketing emails and SMS messages from PrimePreps at the email address and phone number provided. Message frequency varies. Msg & data rates may apply. Reply STOP to cancel SMS, HELP for help. Consent isn't a condition of any purchase.",
         source: "primepreps_landing",
         submitted_at: new Date().toISOString(),
         _subject: `New PrimePreps waitlist signup: ${name}`,
