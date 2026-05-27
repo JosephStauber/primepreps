@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 360" role="img" aria-label="PrimePreps. Fuel up. Show up.">
+  <defs>
+    <linearGradient id="bowlGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3FB35A"/>
+      <stop offset="100%" stop-color="#1F7A3A"/>
+    </linearGradient>
+  </defs>
+  <!-- Icon tile -->
+  <rect x="20" y="40" width="280" height="280" rx="48" fill="#E5F5E8"/>
+  <!-- Steam swooshes -->
+  <path d="M118 118 q-14 -22 4 -44" fill="none" stroke="#1F7A3A" stroke-width="10" stroke-linecap="round"/>
+  <path d="M150 118 q-14 -22 4 -44" fill="none" stroke="#1F7A3A" stroke-width="10" stroke-linecap="round"/>
+  <!-- Carrot / leaf -->
+  <path d="M190 130 q34 -54 70 -50 q-6 38 -50 70 z" fill="#F07A1E"/>
+  <!-- Bowl (semicircle) -->
+  <path d="M80 170 H240 a80 80 0 0 1 -160 0 Z" fill="url(#bowlGrad)"/>
+
+  <!-- Wordmark -->
+  <g font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-weight="800">
+    <text x="330" y="170" font-size="120" fill="#1F7A3A" letter-spacing="-2">PRIME</text>
+    <text x="330" y="280" font-size="120" fill="#F07A1E" letter-spacing="-2">PREPS<tspan fill="#1F7A3A">.</tspan></text>
+    <text x="332" y="330" font-size="32" fill="#3FB35A" letter-spacing="6" font-weight="700">FUEL UP. SHOW UP.</text>
+  </g>
+</svg>

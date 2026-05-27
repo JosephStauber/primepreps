@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PrimePreps — Fuel up. Show up.</title>
+    <meta
+      name="description"
+      content="PrimePreps delivers fresh, macro-balanced, chef-prepared meals to your door. Fuel up. Show up. Join the waitlist."
+    />
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="container nav-inner">
+        <a href="#" class="logo" aria-label="PrimePreps home">
+          <img src="assets/icon.svg" alt="" class="logo-mark" />
+          <span class="logo-word">
+            <span class="logo-prime">Prime</span><span class="logo-preps">Preps<span class="logo-dot">.</span></span>
+          </span>
+        </a>
+        <nav>
+          <a href="#how-it-works">How it works</a>
+          <a href="#menu">Menu</a>
+          <a href="#waitlist" class="btn btn-ghost">Join waitlist</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container hero-inner">
+          <img src="assets/logo.svg" alt="PrimePreps — Fuel up. Show up." class="hero-logo" />
+          <span class="eyebrow">Launching soon · Limited spots</span>
+          <h1>Fuel up.<br /><span class="accent">Show up.</span></h1>
+          <p class="lede">
+            Fresh, macro-balanced, chef-prepared meals delivered to your door.
+            Skip the prep, the dishes, and the guesswork — just heat and eat.
+          </p>
+          <div class="hero-cta">
+            <a href="#waitlist" class="btn btn-primary">Join the waitlist</a>
+            <a href="#how-it-works" class="btn btn-secondary">See how it works</a>
+          </div>
+          <ul class="trust">
+            <li>Locally sourced</li>
+            <li>No mystery ingredients</li>
+            <li>Ready in 3 minutes</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="features" id="menu">
+        <div class="container">
+          <h2>Built for people who don't have time to cook,<br />but won't settle for junk.</h2>
+          <div class="grid">
+            <div class="card">
+              <div class="card-icon">01</div>
+              <h3>Macro-balanced</h3>
+              <p>
+                Every meal is portioned and labeled with calories, protein,
+                carbs, and fat — so hitting your targets is automatic.
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-icon">02</div>
+              <h3>Fresh, not frozen</h3>
+              <p>
+                Cooked in small batches the day before delivery. Stays fresh in
+                the fridge all week, never frozen.
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-icon">03</div>
+              <h3>Ready in 3 minutes</h3>
+              <p>
+                Microwave-safe containers, real ingredients, zero prep. Open,
+                heat, eat. That's the whole routine.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="how" id="how-it-works">
+        <div class="container">
+          <h2>How it works</h2>
+          <ol class="steps">
+            <li>
+              <span class="step-num">1</span>
+              <h3>Pick your plan</h3>
+              <p>Choose 8, 12, or 16 meals per week. Swap proteins and sides anytime.</p>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <h3>We cook fresh</h3>
+              <p>Our chefs prep your order the day before delivery — never weeks ahead.</p>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <h3>Delivered to your door</h3>
+              <p>Insulated, refrigerated drop-off once a week. Skip or pause anytime.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="waitlist" id="waitlist">
+        <div class="container waitlist-inner">
+          <h2>Join the waitlist</h2>
+          <p class="lede">
+            We're rolling out to a small group of early customers. Drop your
+            number and we'll text you the moment ordering opens in your area.
+          </p>
+
+          <form id="waitlist-form" class="form" novalidate>
+            <div class="form-row">
+              <label class="field">
+                <span>First name</span>
+                <input type="text" name="first_name" autocomplete="given-name" required />
+              </label>
+              <label class="field">
+                <span>Mobile number</span>
+                <input
+                  type="tel"
+                  name="phone"
+                  inputmode="tel"
+                  autocomplete="tel"
+                  placeholder="(555) 555-5555"
+                  required
+                />
+              </label>
+            </div>
+            <label class="field">
+              <span>ZIP code</span>
+              <input
+                type="text"
+                name="zip"
+                inputmode="numeric"
+                autocomplete="postal-code"
+                maxlength="5"
+                pattern="[0-9]{5}"
+                required
+              />
+            </label>
+            <label class="consent">
+              <input type="checkbox" name="consent" required />
+              <span>
+                I agree to receive recurring SMS updates from PrimePreps at the
+                number provided. Msg &amp; data rates may apply. Reply STOP to
+                cancel. Consent isn't a condition of purchase.
+              </span>
+            </label>
+            <button type="submit" class="btn btn-primary btn-block">
+              Save my spot
+            </button>
+            <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>&copy; <span id="year"></span> PrimePreps. All rights reserved.</p>
+        <p>
+          <a href="mailto:hello@primepreps.com">hello@primepreps.com</a>
+        </p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
