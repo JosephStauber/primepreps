@@ -1,18 +1,13 @@
 (function () {
   // -----------------------------------------------------------------------
-  // Klaviyo configuration
+  // Waitlist endpoint
   //
-  // 1. Create a free Klaviyo account at https://www.klaviyo.com/
-  // 2. Settings → API Keys → copy your "Public API Key" (looks like "AbCdEf")
-  //    and paste it into KLAVIYO_COMPANY_ID below. This is meant to be public.
-  // 3. Lists & Segments → Create List → name it "PrimePreps Waitlist".
-  //    Open the list, click Settings, copy the List ID into KLAVIYO_LIST_ID.
-  // 4. Enable SMS in Klaviyo (Account → Settings → SMS) and register your
-  //    A2P 10DLC campaign. Klaviyo walks you through this.
+  // Submissions are POSTed to a Google Apps Script web app that appends
+  // them as rows in your Google Sheet. Setup steps are in README-ish
+  // form at the bottom of this file. Paste your deployed web-app URL
+  // (the one that ends in "/exec") below.
   // -----------------------------------------------------------------------
-  const KLAVIYO_COMPANY_ID = "VV8V8d";
-  const KLAVIYO_LIST_ID = "Y7L6fS";
-  const KLAVIYO_API_REVISION = "2024-10-15";
+  const WAITLIST_ENDPOINT = "";
 
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -39,62 +34,26 @@
     e.target.value = formatPhone(e.target.value);
   });
 
-  const submitToKlaviyo = async ({ first_name, phoneE164, zip }) => {
-    if (!KLAVIYO_COMPANY_ID || !KLAVIYO_LIST_ID) {
-      throw new Error("Klaviyo is not configured yet.");
+  const submitWaitlist = async ({ first_name, phoneE164, zip }) => {
+    if (!WAITLIST_ENDPOINT) {
+      throw new Error("Waitlist endpoint is not configured yet.");
     }
 
-    const url = `https://a.klaviyo.com/client/subscriptions/?company_id=${encodeURIComponent(
-      KLAVIYO_COMPANY_ID
-    )}`;
+    const params = new URLSearchParams();
+    params.append("first_name", first_name);
+    params.append("phone", phoneE164);
+    params.append("zip", zip);
+    params.append("sms_consent", "1");
+    params.append("source", "primepreps_landing");
+    params.append("user_agent", navigator.userAgent);
 
-    const body = {
-      data: {
-        type: "subscription",
-        attributes: {
-          custom_source: "PrimePreps Landing Page",
-          profile: {
-            data: {
-              type: "profile",
-              attributes: {
-                phone_number: phoneE164,
-                properties: {
-                  first_name,
-                  zip,
-                  source: "primepreps_landing",
-                  sms_consent: true,
-                  sms_consent_timestamp: new Date().toISOString(),
-                  sms_consent_text:
-                    "I agree to receive recurring SMS updates from PrimePreps at the number provided. Msg & data rates may apply. Reply STOP to cancel.",
-                },
-              },
-            },
-          },
-        },
-        relationships: {
-          list: {
-            data: { type: "list", id: KLAVIYO_LIST_ID },
-          },
-        },
-      },
-    };
-
-    const res = await fetch(url, {
+    const res = await fetch(WAITLIST_ENDPOINT, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        revision: KLAVIYO_API_REVISION,
-      },
-      body: JSON.stringify(body),
+      body: params,
     });
 
-    if (!res.ok && res.status !== 202) {
-      let detail = "";
-      try {
-        const json = await res.json();
-        detail = json?.errors?.[0]?.detail || "";
-      } catch (_) {}
-      const err = new Error(detail || `Klaviyo error ${res.status}`);
+    if (!res.ok) {
+      const err = new Error(`Server returned ${res.status}`);
       err.status = res.status;
       throw err;
     }
@@ -130,7 +89,7 @@
     submitBtn.textContent = "Saving...";
 
     try {
-      await submitToKlaviyo({
+      await submitWaitlist({
         first_name: data.first_name.trim(),
         phoneE164: `+1${phoneDigits}`,
         zip: data.zip,
@@ -138,18 +97,14 @@
 
       form.reset();
       setStatus(
-        "You're on the list. We'll text you the second we launch in your area.",
+        "You're on the list. We'll be in touch the moment we launch in your area.",
         "success"
       );
     } catch (err) {
       console.error("Waitlist submission failed:", err);
       const friendly =
-        err.status === 429
-          ? "Whoa, slow down — please try again in a minute."
-          : err.message && err.message.toLowerCase().includes("not configured")
-          ? "SMS signup isn't live yet. Check back soon!"
-          : err.message
-          ? `Klaviyo says: ${err.message}`
+        err.message && err.message.toLowerCase().includes("not configured")
+          ? "Signups aren't live yet. Check back soon!"
           : "Something went wrong. Please try again in a moment.";
       setStatus(friendly, "error");
     } finally {
@@ -158,3 +113,45 @@
     }
   });
 })();
+
+/* ----------------------------------------------------------------------
+   Google Sheets setup (one-time)
+
+   1. Open https://sheets.new to create a new blank Google Sheet.
+      Name it "PrimePreps Waitlist".
+
+   2. In the menu bar: Extensions -> Apps Script.
+      (On mobile you'll need "Request Desktop Site" in Safari/Chrome,
+       OR just do this step from a laptop.)
+
+   3. Delete the default code in the editor and paste this:
+
+      function doPost(e) {
+        const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+        if (sheet.getLastRow() === 0) {
+          sheet.appendRow(['Timestamp','First Name','Phone','ZIP','SMS Consent','Source','User Agent']);
+        }
+        const p = e.parameter || {};
+        sheet.appendRow([
+          new Date(),
+          p.first_name || '',
+          p.phone || '',
+          p.zip || '',
+          p.sms_consent === '1' ? 'YES' : 'NO',
+          p.source || '',
+          p.user_agent || ''
+        ]);
+        return ContentService.createTextOutput(JSON.stringify({ ok: true }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+
+   4. Click the blue "Deploy" button (top right) -> New deployment.
+      - Click the gear icon -> select "Web app".
+      - Description: "PrimePreps waitlist webhook"
+      - Execute as: Me
+      - Who has access: Anyone
+      - Click Deploy. Approve the permissions when prompted.
+
+   5. Copy the "Web app URL" it shows you (ends in "/exec") and send
+      it back so it can be pasted into WAITLIST_ENDPOINT above.
+---------------------------------------------------------------------- */
